@@ -185,7 +185,7 @@ export default function App() {
         )}
 
         {/* NAVEGACIÓN INFERIOR STREETWEAR */}
-        {(currentView !== 'add' && currentView !== 'edit') && (
+        {['home', 'calendar', 'help', 'settings'].includes(currentView) && (
           <div className="fixed bottom-0 w-full max-w-md bg-bg-surface border-t-[3px] border-border grid grid-cols-5 items-center p-2 pb-6 z-40 transition-colors">
             <button 
               onClick={goHome} 

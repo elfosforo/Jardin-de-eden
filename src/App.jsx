@@ -77,14 +77,23 @@ export default function App() {
   });
   const [currentView, setCurrentView] = useState('home'); // home, add, detail, calendar, help
   const [selectedPlant, setSelectedPlant] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem('jardin_theme');
+    if (savedTheme) {
+      return savedTheme === 'dark';
+    }
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
 
   useEffect(() => {
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDarkMode(true);
+    if (isDarkMode) {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('jardin_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('jardin_theme', 'light');
     }
-  }, []);
+  }, [isDarkMode]);
 
   useEffect(() => {
     localStorage.setItem('jardin_plants', JSON.stringify(plants));
@@ -92,7 +101,6 @@ export default function App() {
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
   };
 
   // --- VISTAS ---
@@ -1160,7 +1168,7 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant 
 
           <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:w-1 before:bg-border">
             {plant.logs.length === 0 ? (
-              <p className="text-center text-text-secondary py-6 font-impact text-xl brutalist-card bg-bg-surface border-dashed">SIN REGISTROS BRO.</p>
+              <p className="text-center text-text-secondary py-6 font-impact text-xl brutalist-card bg-bg-surface border-dashed">AÚN NO HAY REGISTROS.</p>
             ) : (
               plant.logs.map((log) => (
                 <div key={log.id} className="relative flex items-start group">

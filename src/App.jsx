@@ -1000,7 +1000,8 @@ function AddPlantForm({ onCancel, onSave, initialData, showToast }) {
 function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant, showToast }) {
   const [showLogModal, setShowLogModal] = useState(false);
   const [logType, setLogType] = useState('Riego');
-  const [logData, setLogData] = useState({ note: '', ph: '', ec: '', height: '', photo: null });
+  const [includeNutrients, setIncludeNutrients] = useState(false);
+  const [logData, setLogData] = useState({ note: '', nutrients: '', ph: '', ec: '', height: '', photo: null });
   
   const [showHarvestModal, setShowHarvestModal] = useState(false);
   const [harvestData, setHarvestData] = useState({ yield: '', rating: '10', note: '' });
@@ -1019,14 +1020,20 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant,
     if(logData.ec) metrics.ec = parseFloat(logData.ec);
     if(logData.height) metrics.height = parseFloat(logData.height);
 
+    let finalNote = logData.note;
+    if (logType === 'Riego' && includeNutrients && logData.nutrients) {
+      finalNote = `Nutrientes: ${logData.nutrients}. ${finalNote}`;
+    }
+
     onAddLog(plant.id, { 
-      type: logType, 
-      note: logData.note, 
+      type: (logType === 'Riego' && includeNutrients) ? 'Nutrientes' : logType, 
+      note: finalNote, 
       metrics: Object.keys(metrics).length > 0 ? metrics : null,
       photo: logData.photo
     });
     setShowLogModal(false);
-    setLogData({ note: '', ph: '', ec: '', height: '', photo: null });
+    setLogData({ note: '', nutrients: '', ph: '', ec: '', height: '', photo: null });
+    setIncludeNutrients(false);
     if (showToast) showToast("REGISTRO AÑADIDO");
   };
 
@@ -1282,34 +1289,66 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant,
               </button>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 mb-6">
-              {[
-                { type: 'Riego', icon: Droplets },
-                { type: 'Nutrientes', icon: FlaskConical },
-                { type: 'Medición', icon: Ruler },
-                { type: 'Otro', icon: BookOpen }
-              ].map(item => {
-                const Icon = item.icon;
-                const isSelected = logType === item.type;
-                return (
-                  <button 
-                    key={item.type} onClick={() => setLogType(item.type)}
-                    className={`brutalist-card p-3 flex flex-col items-center justify-center gap-1 ${isSelected ? 'bg-accent text-accent-text border-border shadow-[2px_2px_0px_0px_var(--color-border)]' : 'bg-bg-base text-text-secondary border-transparent shadow-none'}`}
-                  >
-                    <Icon size={24} strokeWidth={isSelected ? 3 : 2} />
-                    <span className="text-[10px] font-impact mt-1 tracking-wider">{item.type.toUpperCase()}</span>
-                  </button>
-                )
-              })}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <button 
+                onClick={() => setLogType('Riego')}
+                className={`p-4 flex flex-col items-center gap-2 border-[3px] shadow-[4px_4px_0px_0px_var(--color-border)] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all ${logType === 'Riego' ? 'bg-accent text-accent-text border-border' : 'bg-bg-base text-text-secondary opacity-70'}`}
+              >
+                <Droplets size={32} strokeWidth={2.5} />
+                <span className="font-impact text-lg">RIEGO</span>
+              </button>
+              <button 
+                onClick={() => setLogType('Otro')}
+                className={`p-4 flex flex-col items-center gap-2 border-[3px] shadow-[4px_4px_0px_0px_var(--color-border)] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all ${logType === 'Otro' ? 'bg-accent text-accent-text border-border' : 'bg-bg-base text-text-secondary opacity-70'}`}
+              >
+                <BookOpen size={32} strokeWidth={2.5} />
+                <span className="font-impact text-lg">OTRO</span>
+              </button>
             </div>
 
             <div className="space-y-4 mb-6">
-              {(logType === 'Riego' || logType === 'Nutrientes' || logType === 'Medición') && (
-                <div className="grid grid-cols-3 gap-3">
-                  <input type="number" step="0.1" placeholder="PH" value={logData.ph} onChange={e => setLogData({...logData, ph: e.target.value})} className="brutalist-input bg-bg-surface text-text-primary p-3 font-bold text-center" />
-                  <input type="number" step="0.1" placeholder="EC" value={logData.ec} onChange={e => setLogData({...logData, ec: e.target.value})} className="brutalist-input bg-bg-surface text-text-primary p-3 font-bold text-center" />
-                  <input type="number" placeholder="ALT(CM)" value={logData.height} onChange={e => setLogData({...logData, height: e.target.value})} className="brutalist-input bg-bg-surface text-text-primary p-3 font-bold text-center" />
-                </div>
+              {logType === 'Riego' && (
+                <>
+                  <div 
+                    onClick={() => setIncludeNutrients(!includeNutrients)}
+                    className={`p-3 border-[3px] border-border shadow-[2px_2px_0px_0px_var(--color-border)] flex items-center justify-between cursor-pointer transition-colors ${includeNutrients ? 'bg-bg-surface' : 'bg-bg-base opacity-70'}`}
+                  >
+                    <div className="flex items-center gap-3 text-text-primary font-impact">
+                      <FlaskConical size={20} strokeWidth={2.5} className={includeNutrients ? 'text-accent' : 'text-text-secondary'} />
+                      <span>¿AÑADIR NUTRIENTES?</span>
+                    </div>
+                    <div className={`w-12 h-6 border-2 border-border p-1 flex items-center transition-all ${includeNutrients ? 'bg-accent justify-end' : 'bg-bg-base justify-start'}`}>
+                      <div className="w-4 h-4 bg-white border-2 border-border shadow-[1px_1px_0px_0px_rgba(0,0,0,0.2)]"></div>
+                    </div>
+                  </div>
+
+                  {includeNutrients && (
+                    <div className="space-y-1 animate-in slide-in-from-top-2 duration-200">
+                      <label className="text-[10px] font-impact text-text-secondary tracking-widest">DETALLE DE NUTRIENTES</label>
+                      <textarea 
+                        placeholder="Ej: Biogrow 2ml/L, Top Max 1ml/L..."
+                        className="brutalist-input bg-bg-base text-text-primary w-full p-3 font-bold text-sm min-h-[80px]"
+                        value={logData.nutrients}
+                        onChange={(e) => setLogData({...logData, nutrients: e.target.value})}
+                      />
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-impact text-text-secondary text-center block">PH</label>
+                      <input type="number" step="0.1" placeholder="6.2" value={logData.ph} onChange={e => setLogData({...logData, ph: e.target.value})} className="brutalist-input bg-bg-surface text-text-primary w-full p-2 font-bold text-center" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-impact text-text-secondary text-center block">EC</label>
+                      <input type="number" step="0.1" placeholder="1.2" value={logData.ec} onChange={e => setLogData({...logData, ec: e.target.value})} className="brutalist-input bg-bg-surface text-text-primary w-full p-2 font-bold text-center" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-impact text-text-secondary text-center block">ALT(CM)</label>
+                      <input type="number" placeholder="45" value={logData.height} onChange={e => setLogData({...logData, height: e.target.value})} className="brutalist-input bg-bg-surface text-text-primary w-full p-2 font-bold text-center" />
+                    </div>
+                  </div>
+                </>
               )}
               
               <div className="brutalist-card bg-bg-base p-0 border-dashed relative">

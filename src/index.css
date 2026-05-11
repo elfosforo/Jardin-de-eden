@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;600;800&display=swap');
+
 
 @theme {
   --color-bg-base: var(--color-bg-base);
@@ -15,7 +17,7 @@
   --font-impact: "Bebas Neue", "Impact", sans-serif;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;600;800&display=swap');
+
 
 :root {
   /* LIGHT MODE: White, Cafe, Green */

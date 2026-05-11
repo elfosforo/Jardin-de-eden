@@ -1254,9 +1254,10 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant,
                         )}
                       </div>
                     )}
-                  </div>
-                </div>
-              ))
+                      </div>
+                    </div>
+                  );
+                })
             )}
           </div>
         </div>

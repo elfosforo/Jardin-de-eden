@@ -1,16 +1,47 @@
-# React + Vite
+# 🌿 JARDÍN DE EDÉN
+### EL CULTIVO TIENE UN NUEVO CÓDIGO.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Jardín de Edén** no es una aplicación de notas. Es un dashboard de nivel industrial diseñado para el cultivador moderno que exige control absoluto, privacidad total y una estética que rompa con lo genérico.
 
-Currently, two official plugins are available:
+Inspirado en la cultura **Streetwear y el diseño Brutalista**, este panel transforma tu proceso de cultivo en una operación de precisión.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🔥 FUNCIONALIDADES "ELITE"
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+*   **⚡ SEGUIMIENTO INTELIGENTE:** Control en tiempo real del ciclo de vida. Días de vida, etapa actual y cálculo automático de cosecha.
+*   **📸 BITÁCORA VISUAL PRO:** Registra cada riego y nutriente con soporte para fotos. Compresión agresiva integrada para que tu historial sea infinito sin saturar la memoria.
+*   **⚠️ SISTEMA DE VIGILANCIA:** Alertas inteligentes que te avisan cuando la planta tiene sed o está lista para el corte. Olvídate de las conjeturas.
+*   **🏆 EL SALÓN DE LA FAMA:** Archivo histórico de tus éxitos. Registra rendimientos finales (gramos) y notas de cata para perfeccionar tu técnica en cada ciclo.
+*   **📚 EL MANUAL DEL BARRIO:** Una wiki técnica integrada para identificar plagas, carencias y dominar la nutrición sin salir de la app.
+*   **🛡️ PRIVACIDAD TOTAL:** Offline-first. Tus datos y fotos nunca salen de tu dispositivo. Sin servidores, sin rastreo, sin riesgos.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ TECNOLOGÍA NATIVA (PWA)
+
+Esta aplicación es una **PWA (Progressive Web App)**. Esto significa que puedes instalarla directamente en tu celular desde el navegador. 
+*   **Sin App Store.** 
+*   **Sin Internet.** 
+*   **Sin esperas.**
+
+---
+
+## 🎨 ADN VISUAL
+
+*   **Tipografía:** Impact & Sans-serif bold.
+*   **Estilo:** Brutalismo Urbano (bordes rígidos, sombras pesadas, contrastes neón).
+*   **Modo:** Dark Mode optimizado para bajo consumo y discreción.
+
+---
+
+## 🚀 SETUP RÁPIDO
+
+1. Clona este repo.
+2. `npm install`
+3. `npm run dev`
+4. **Build:** `npm run build` para generar la versión de producción instalable.
+
+---
+
+**Diseñado para los que saben que el detalle hace la diferencia.** 🍃🏆

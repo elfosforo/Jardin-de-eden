@@ -1220,7 +1220,7 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant 
 
       {showLogModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-bg-base/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-bg-surface w-full max-w-md border-t-[4px] border-border p-6 pb-10 shadow-[0_-10px_0px_0px_var(--color-border)]">
+          <div className="bg-bg-surface w-full max-w-md border-t-[4px] border-border p-6 pb-10 shadow-[0_-10px_0px_0px_var(--color-border)] max-h-[90vh] overflow-y-auto flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-3xl font-impact text-text-primary pt-1">NUEVO LOG</h3>
               <button onClick={() => setShowLogModal(false)} className="brutalist-card p-2 bg-bg-base active:scale-90 text-text-primary">
@@ -1290,7 +1290,7 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant 
 
       {showHarvestModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/80 backdrop-blur-sm p-5 animate-in fade-in duration-200">
-          <div className="bg-bg-surface w-full max-w-sm border-t-[4px] border-border p-6 shadow-[0_10px_0px_0px_var(--color-border)]">
+          <div className="bg-bg-surface w-full max-w-sm border-t-[4px] border-border p-6 shadow-[0_10px_0px_0px_var(--color-border)] max-h-[90vh] overflow-y-auto flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-3xl font-impact text-text-primary pt-1">COSECHAR</h3>
               <button onClick={() => setShowHarvestModal(false)} className="brutalist-card p-2 bg-bg-base active:scale-90 text-text-primary">

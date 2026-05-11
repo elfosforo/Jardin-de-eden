@@ -144,6 +144,14 @@ export default function App() {
     }));
   };
 
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: '', type: 'success' });
+    }, 3000);
+  };
+
   return (
     <div className="bg-bg-base text-text-primary min-h-screen font-sans pb-20 flex justify-center selection:bg-accent/30 transition-colors">
       <div className="w-full max-w-md bg-bg-base min-h-screen relative shadow-2xl overflow-x-hidden border-x-[3px] border-border transition-colors">
@@ -160,7 +168,7 @@ export default function App() {
           />
         )}
         {currentView === 'add' && (
-          <AddPlantForm onCancel={goHome} onSave={addPlant} />
+          <AddPlantForm onCancel={goHome} onSave={addPlant} showToast={showToast} />
         )}
         {currentView === 'detail' && selectedPlant && (
           <PlantDetail 
@@ -170,6 +178,7 @@ export default function App() {
             onDelete={deletePlant}
             onEdit={goToEdit}
             onUpdatePlant={updatePlant}
+            showToast={showToast}
           />
         )}
         {currentView === 'edit' && selectedPlant && (
@@ -177,6 +186,7 @@ export default function App() {
             onCancel={() => setCurrentView('detail')} 
             onSave={(updatedData) => updatePlant({ ...selectedPlant, ...updatedData })} 
             initialData={plants.find(p => p.id === selectedPlant.id) || selectedPlant} 
+            showToast={showToast}
           />
         )}
         {currentView === 'calendar' && (
@@ -186,7 +196,7 @@ export default function App() {
           <HelpWikiView onBack={goHome} />
         )}
         {currentView === 'settings' && (
-          <SettingsView onBack={goHome} isDarkMode={isDarkMode} toggleTheme={toggleTheme} plants={plants} setPlants={setPlants} />
+          <SettingsView onBack={goHome} isDarkMode={isDarkMode} toggleTheme={toggleTheme} plants={plants} setPlants={setPlants} showToast={showToast} />
         )}
         {currentView === 'archive' && (
           <ArchiveView plants={plants.filter(p => p.status === 'harvested')} onBack={goHome} onSelectPlant={goToDetail} />
@@ -239,13 +249,23 @@ export default function App() {
             </button>
           </div>
         )}
+
+        {/* TOAST GLOBAL */}
+        {toast.show && (
+          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
+            <div className={`px-4 py-3 border-[3px] border-border shadow-[4px_4px_0px_0px_var(--color-border)] font-impact text-sm tracking-wider flex items-center gap-2 ${toast.type === 'error' ? 'bg-red-500 text-white' : 'bg-accent text-accent-text'}`}>
+              {toast.type === 'error' ? <AlertTriangle size={18} /> : <Sparkles size={18} />}
+              {toast.message}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 // --- COMPONENTE: AJUSTES ---
-function SettingsView({ onBack, isDarkMode, toggleTheme, plants, setPlants }) {
+function SettingsView({ onBack, isDarkMode, toggleTheme, plants, setPlants, showToast }) {
   const handleExportData = () => {
     const dataStr = JSON.stringify(plants, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
@@ -260,7 +280,7 @@ function SettingsView({ onBack, isDarkMode, toggleTheme, plants, setPlants }) {
     if (window.confirm("¡CUIDADO! ¿Estás absolutamente seguro de que quieres borrar TODOS los datos? Esta acción no se puede deshacer.")) {
       setPlants([]);
       localStorage.removeItem('jardin_plants');
-      alert("Todos los datos han sido borrados.");
+      showToast("DATOS BORRADOS CORRECTAMENTE");
     }
   };
 
@@ -274,12 +294,12 @@ function SettingsView({ onBack, isDarkMode, toggleTheme, plants, setPlants }) {
         const importedData = JSON.parse(e.target.result);
         if (Array.isArray(importedData)) {
           setPlants(importedData);
-          alert("¡Backup importado exitosamente!");
+          showToast("BACKUP IMPORTADO CON ÉXITO");
         } else {
-          alert("El archivo no tiene el formato correcto.");
+          showToast("FORMATO DE ARCHIVO INCORRECTO", 'error');
         }
       } catch (error) {
-        alert("Error al leer el archivo. Asegúrate de que es un .json válido.");
+        showToast("ERROR AL LEER EL ARCHIVO JSON", 'error');
       }
     };
     reader.readAsText(file);
@@ -736,7 +756,7 @@ function CalendarView({ plants, onBack, onSelectPlant }) {
 }
 
 // --- COMPONENTE: FORMULARIO NUEVA PLANTA ---
-function AddPlantForm({ onCancel, onSave, initialData }) {
+function AddPlantForm({ onCancel, onSave, initialData, showToast }) {
   const [formData, setFormData] = useState(initialData ? {
     ...initialData,
     ageMode: 'date',
@@ -773,6 +793,7 @@ function AddPlantForm({ onCancel, onSave, initialData }) {
         startDate: finalStartDate,
         estCycle: formData.cycleMode === 'custom' ? parseInt(formData.customCycle) : (formData.type === 'Autofloreciente' ? 85 : 140)
       });
+      if (showToast) showToast(initialData ? "CAMBIOS GUARDADOS" : "PLANTA SEMBRADA");
     }
   };
 
@@ -840,18 +861,20 @@ function AddPlantForm({ onCancel, onSave, initialData }) {
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-impact text-text-secondary tracking-widest">TIPO DE SEMILLA</label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <button 
                     type="button" onClick={() => setFormData({...formData, type: 'Autofloreciente'})}
-                    className={`p-2 border-[3px] shadow-[2px_2px_0px_0px_var(--color-border)] transition-colors ${formData.type === 'Autofloreciente' ? 'bg-accent border-border text-accent-text' : 'bg-bg-base border-border text-text-secondary'}`}
+                    className={`p-4 flex flex-col items-center justify-center gap-2 border-[3px] shadow-[4px_4px_0px_0px_var(--color-border)] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all ${formData.type === 'Autofloreciente' ? 'bg-accent border-border text-accent-text' : 'bg-bg-base border-border text-text-secondary opacity-70 hover:opacity-100'}`}
                   >
-                    <span className="font-impact text-sm">AUTOFLORECIENTE</span>
+                    <Activity size={32} strokeWidth={2.5} />
+                    <span className="font-impact text-lg">AUTO</span>
                   </button>
                   <button 
                     type="button" onClick={() => setFormData({...formData, type: 'Feminizada'})}
-                    className={`p-2 border-[3px] shadow-[2px_2px_0px_0px_var(--color-border)] transition-colors ${formData.type === 'Feminizada' ? 'bg-accent border-border text-accent-text' : 'bg-bg-base border-border text-text-secondary'}`}
+                    className={`p-4 flex flex-col items-center justify-center gap-2 border-[3px] shadow-[4px_4px_0px_0px_var(--color-border)] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all ${formData.type === 'Feminizada' ? 'bg-accent border-border text-accent-text' : 'bg-bg-base border-border text-text-secondary opacity-70 hover:opacity-100'}`}
                   >
-                    <span className="font-impact text-sm">FOTOPERIÓDICA</span>
+                    <Leaf size={32} strokeWidth={2.5} />
+                    <span className="font-impact text-lg">FOTO</span>
                   </button>
                 </div>
               </div>
@@ -937,16 +960,22 @@ function AddPlantForm({ onCancel, onSave, initialData }) {
               </div>
 
               {formData.cycleMode === 'custom' && (
-                <div className="space-y-1 p-3 bg-bg-base border-2 border-border mt-3">
-                  <label className="text-xs font-impact text-text-secondary tracking-widest">DÍAS TOTALES DEL CICLO</label>
-                  <div className="flex items-center gap-3 mt-2">
-                    <input 
-                      type="number" min="30" max="300" required
-                      className="brutalist-input bg-bg-surface text-text-primary w-24 p-3 font-bold text-center text-xl"
-                      value={formData.customCycle}
-                      onChange={(e) => setFormData({...formData, customCycle: e.target.value})}
-                    />
-                    <span className="text-sm font-bold text-text-secondary uppercase">Días en total</span>
+                <div className="space-y-4 p-4 bg-bg-base border-2 border-border mt-3 shadow-[inset_2px_2px_0px_0px_var(--color-border)]">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-impact text-text-secondary tracking-widest">DÍAS TOTALES DEL CICLO</label>
+                    <span className="font-impact text-2xl text-text-primary bg-bg-surface px-3 py-1 border-2 border-border shadow-[2px_2px_0px_0px_var(--color-border)]">
+                      {formData.customCycle}
+                    </span>
+                  </div>
+                  <input 
+                    type="range" min="30" max="300" step="1"
+                    className="w-full accent-accent h-3 bg-bg-surface border-2 border-border appearance-none cursor-pointer"
+                    value={formData.customCycle}
+                    onChange={(e) => setFormData({...formData, customCycle: e.target.value})}
+                  />
+                  <div className="flex justify-between text-xs font-bold text-text-secondary uppercase">
+                    <span>Rápido (30d)</span>
+                    <span>Largo (300d)</span>
                   </div>
                 </div>
               )}
@@ -968,7 +997,7 @@ function AddPlantForm({ onCancel, onSave, initialData }) {
 }
 
 // --- COMPONENTE: DETALLE DE PLANTA Y BITÁCORA ---
-function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant }) {
+function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant, showToast }) {
   const [showLogModal, setShowLogModal] = useState(false);
   const [logType, setLogType] = useState('Riego');
   const [logData, setLogData] = useState({ note: '', ph: '', ec: '', height: '', photo: null });
@@ -976,6 +1005,7 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant 
   const [showHarvestModal, setShowHarvestModal] = useState(false);
   const [harvestData, setHarvestData] = useState({ yield: '', rating: '10', note: '' });
   const [showQrModal, setShowQrModal] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   const days = calculateDays(plant.startDate);
   const estCycle = plant.estCycle || getCycleEstimate(plant.type);
@@ -997,6 +1027,7 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant 
     });
     setShowLogModal(false);
     setLogData({ note: '', ph: '', ec: '', height: '', photo: null });
+    if (showToast) showToast("REGISTRO AÑADIDO");
   };
 
   const handlePhotoUpload = (e) => {
@@ -1049,6 +1080,7 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant 
           date: new Date().toISOString()
         }
       });
+      if (showToast) showToast("¡COSECHA REGISTRADA!");
     }
   };
 
@@ -1170,24 +1202,37 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant 
             {plant.logs.length === 0 ? (
               <p className="text-center text-text-secondary py-6 font-impact text-xl brutalist-card bg-bg-surface border-dashed">AÚN NO HAY REGISTROS.</p>
             ) : (
-              plant.logs.map((log) => (
-                <div key={log.id} className="relative flex items-start group">
-                  <div className="flex items-center justify-center w-10 h-10 border-[3px] border-border bg-accent text-accent-text shrink-0 z-10 shadow-[2px_2px_0px_0px_var(--color-border)] mt-1 ml-0.5">
-                    {log.type === 'Riego' ? <Droplets size={20} strokeWidth={2.5} /> : log.type === 'Nutrientes' ? <FlaskConical size={20} strokeWidth={2.5} /> : <BookOpen size={20} strokeWidth={2.5} />}
-                  </div>
-                  
-                  <div className="w-[calc(100%-3rem)] ml-4 brutalist-card bg-bg-surface p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xl font-impact text-text-primary leading-none">{log.type.toUpperCase()}</span>
-                      <time className="text-xs font-bold px-2 py-1 bg-border text-bg-base border-2 border-border">
-                        {new Date(log.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }).toUpperCase()}
-                      </time>
+              plant.logs.map((log) => {
+                const isRiego = log.type === 'Riego';
+                const isNutrientes = log.type === 'Nutrientes';
+                const isMedicion = log.type === 'Medición';
+                
+                let iconColorClass = 'bg-bg-surface text-text-primary border-border';
+                if (isRiego) iconColorClass = 'bg-[#3b82f6] text-white border-[#1d4ed8]';
+                else if (isNutrientes) iconColorClass = 'bg-[#f97316] text-white border-[#c2410c]';
+                else if (isMedicion) iconColorClass = 'bg-[#a855f7] text-white border-[#7e22ce]';
+
+                return (
+                  <div key={log.id} className="relative flex items-start group">
+                    <div className={`flex items-center justify-center w-10 h-10 border-[3px] shrink-0 z-10 shadow-[2px_2px_0px_0px_var(--color-border)] mt-1 ml-0.5 ${iconColorClass}`}>
+                      {isRiego ? <Droplets size={20} strokeWidth={2.5} /> : isNutrientes ? <FlaskConical size={20} strokeWidth={2.5} /> : <BookOpen size={20} strokeWidth={2.5} />}
                     </div>
-                    {log.photo && (
-                      <div className="mb-3 border-[3px] border-border shadow-[2px_2px_0px_0px_var(--color-border)]">
-                        <img src={log.photo} alt="Log" className="w-full h-auto object-cover" />
+                    
+                    <div className="w-[calc(100%-3rem)] ml-4 brutalist-card bg-bg-surface p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xl font-impact text-text-primary leading-none">{log.type.toUpperCase()}</span>
+                        <time className="text-xs font-bold px-2 py-1 bg-border text-bg-base border-2 border-border">
+                          {new Date(log.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }).toUpperCase()}
+                        </time>
                       </div>
-                    )}
+                      {log.photo && (
+                        <div 
+                          className="mb-3 border-[3px] border-border shadow-[2px_2px_0px_0px_var(--color-border)] cursor-pointer active:scale-[0.98] transition-transform"
+                          onClick={() => setSelectedPhoto(log.photo)}
+                        >
+                          <img src={log.photo} alt="Log" className="w-full h-auto object-cover" />
+                        </div>
+                      )}
                     <p className="text-text-secondary font-bold text-sm mb-3">{log.note}</p>
                     
                     {log.metrics && (
@@ -1377,6 +1422,23 @@ function PlantDetail({ plant, onBack, onAddLog, onDelete, onEdit, onUpdatePlant 
               IMPRIMIR CARNET
             </button>
           </div>
+        </div>
+      )}
+
+      {/* FULL SCREEN PHOTO MODAL */}
+      {selectedPhoto && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 animate-in zoom-in-95 duration-200">
+          <button 
+            onClick={() => setSelectedPhoto(null)} 
+            className="absolute top-6 right-6 p-3 bg-white text-black border-[3px] border-black shadow-[4px_4px_0px_0px_#555] active:translate-y-1 active:translate-x-1 active:shadow-none z-[70] transition-all"
+          >
+            <X size={24} strokeWidth={4} />
+          </button>
+          <img 
+            src={selectedPhoto} 
+            alt="Fullscreen preview" 
+            className="max-w-full max-h-[85vh] object-contain border-[4px] border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)]" 
+          />
         </div>
       )}
     </div>
